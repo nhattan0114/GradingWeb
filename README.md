@@ -116,22 +116,6 @@ python run_server.py
 
 ---
 
-## 📝 Quy ước Git Commit
-
-Dự án áp dụng tiêu chuẩn **Conventional Commits 1.0.0**:
-
-```text
-<type>(<scope>): <subject>
-
-<body>
-```
-
-- **Types:** `feat` (tính năng mới), `fix` (sửa lỗi), `docs` (tài liệu), `refactor` (tái cấu trúc), `style` (định dạng), `test` (kiểm thử), `chore` (bảo trì).
-- **Subject:** Dạng mệnh lệnh (*imperative mood*), viết thường, không có dấu chấm cuối câu, tối đa 50 ký tự.
-- **Body:** Giới hạn mỗi dòng $\le 72$ ký tự, giải thích mục đích và nguyên nhân thay đổi.
-
----
-
 ## 📄 Bản quyền
 
 Dự án được phân phối dưới giấy phép **MIT License**. Mọi đóng góp và cải tiến đều được hoan nghênh!
