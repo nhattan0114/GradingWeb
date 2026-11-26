@@ -1,0 +1,85 @@
+# ===============================
+# Python & Byte-compiled files
+# ===============================
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+*.egg-info/
+.installed.cfg
+*.egg
+
+# ===============================
+# Virtual Environments
+# ===============================
+venv/
+.venv/
+env/
+ENV/
+env.bak/
+venv.bak/
+
+# ===============================
+# IDE & Editor Settings
+# ===============================
+.idea/
+.vscode/
+*.swp
+*.swo
+*~
+.project
+.pydevproject
+.settings/
+
+# ===============================
+# Operating System Files
+# ===============================
+.DS_Store
+Thumbs.db
+ehthumbs.db
+Desktop.ini
+$RECYCLE.BIN/
+
+# ===============================
+# Environment Variables & Secrets
+# ===============================
+.env
+.env*.local
+*.secret
+credentials.json
+
+# ===============================
+# Logs & Temporary Files
+# ===============================
+*.log
+temp/
+tmp/
+*.tmp
+
+# ===============================
+# Model Training & YOLO Outputs
+# (Bỏ qua các thư mục huấn luyện YOLO phát sinh)
+# ===============================
+runs/
+wandb/
+yolov8*.pt
+# Giữ lại file model chính của ứng dụng trong app/models/
+!app/models/yolov8_qm2025_markers.pt
+
+# ===============================
+# Dataset huấn luyện (Bỏ qua vì app đã có model hoàn thiện)
+# ===============================
+datasets/
+
