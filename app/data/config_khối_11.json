@@ -1,0 +1,164 @@
+{
+  "exam_id": "vat_li_11_gk1",
+  "grade_level": "Khối 11",
+  "subject_name": "Vật lí 11",
+  "exam_name": "Giữa học kì I",
+  "academic_year": "2026 - 2027",
+  "school_name": "Trường THPT Quế Sơn",
+  "part1_num_questions": 12,
+  "part1_max_score": 3.0,
+  "part2_num_questions": 2,
+  "part2_max_score": 2.0,
+  "part3_num_questions": 4,
+  "part3_max_score": 2.0,
+  "keys": {
+    "201": {
+      "exam_code": "201",
+      "part1": {
+        "1": "D",
+        "2": "D",
+        "3": "D",
+        "4": "D",
+        "5": "D",
+        "6": "D",
+        "7": "D",
+        "8": "D",
+        "9": "B",
+        "10": "D",
+        "11": "D",
+        "12": "B"
+      },
+      "part2": {
+        "1": {
+          "a": false,
+          "b": false,
+          "c": true,
+          "d": true
+        },
+        "2": {
+          "a": true,
+          "b": true,
+          "c": false,
+          "d": false
+        }
+      },
+      "part3": {
+        "1": "5",
+        "2": "5",
+        "3": "5",
+        "4": "5"
+      }
+    },
+    "202": {
+      "exam_code": "202",
+      "part1": {
+        "1": "B",
+        "2": "B",
+        "3": "B",
+        "4": "B",
+        "5": "B",
+        "6": "B",
+        "7": "B",
+        "8": "B",
+        "9": "B",
+        "10": "B",
+        "11": "B",
+        "12": "B"
+      },
+      "part2": {
+        "1": {
+          "a": false,
+          "b": true,
+          "c": false,
+          "d": true
+        },
+        "2": {
+          "a": true,
+          "b": true,
+          "c": false,
+          "d": false
+        }
+      },
+      "part3": {
+        "1": "1",
+        "2": "1",
+        "3": "1",
+        "4": "1"
+      }
+    },
+    "203": {
+      "exam_code": "203",
+      "part1": {
+        "1": "D",
+        "2": "D",
+        "3": "D",
+        "4": "D",
+        "5": "D",
+        "6": "B",
+        "7": "D",
+        "8": "D",
+        "9": "D",
+        "10": "D",
+        "11": "B",
+        "12": "D"
+      },
+      "part2": {
+        "1": {
+          "a": true,
+          "b": true,
+          "c": false,
+          "d": false
+        },
+        "2": {
+          "a": false,
+          "b": false,
+          "c": true,
+          "d": true
+        }
+      },
+      "part3": {
+        "1": "5",
+        "2": "5",
+        "3": "5",
+        "4": "5"
+      }
+    },
+    "204": {
+      "exam_code": "204",
+      "part1": {
+        "1": "A",
+        "2": "A",
+        "3": "A",
+        "4": "A",
+        "5": "A",
+        "6": "A",
+        "7": "A",
+        "8": "A",
+        "9": "A",
+        "10": "A",
+        "11": "A",
+        "12": "A"
+      },
+      "part2": {
+        "1": {
+          "a": true,
+          "b": true,
+          "c": true,
+          "d": true
+        },
+        "2": {
+          "a": false,
+          "b": false,
+          "d": false,
+          "c": false
+        }
+      },
+      "part3": {
+        "1": "1",
+        "2": "1",
+        "3": "1",
+        "4": "1"
+      }
+    }
+  }
+}

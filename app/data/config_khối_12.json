@@ -1,0 +1,53 @@
+{
+  "exam_id": "vat_li_12_gk1",
+  "grade_level": "Khối 12",
+  "subject_name": "Vật lí 12",
+  "exam_name": "Giữa học kì I",
+  "academic_year": "2026 - 2027",
+  "school_name": "Trường THPT Quế Sơn",
+  "part1_num_questions": 12,
+  "part1_max_score": 3.0,
+  "part2_num_questions": 2,
+  "part2_max_score": 2.0,
+  "part3_num_questions": 4,
+  "part3_max_score": 2.0,
+  "keys": {
+    "301": {
+      "exam_code": "301",
+      "part1": {
+        "1": "A",
+        "2": "C",
+        "3": "D",
+        "4": "B",
+        "5": "B",
+        "6": "C",
+        "7": "A",
+        "8": "D",
+        "9": "C",
+        "10": "A",
+        "11": "B",
+        "12": "D"
+      },
+      "part2": {
+        "1": {
+          "a": false,
+          "b": true,
+          "c": true,
+          "d": false
+        },
+        "2": {
+          "a": true,
+          "b": false,
+          "c": true,
+          "d": false
+        }
+      },
+      "part3": {
+        "1": "4",
+        "2": "2,5",
+        "3": "100",
+        "4": "1,2"
+      }
+    }
+  }
+}
