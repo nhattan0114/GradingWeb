@@ -1,0 +1,679 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+    <meta http-equiv="Pragma" content="no-cache">
+    <meta http-equiv="Expires" content="0">
+    <title>Chấm Thi Trắc Nghiệm THPT </title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        moet: {
+                            50: '#f0f5fa',
+                            100: '#e1ecf5',
+                            500: '#1e5a96',
+                            600: '#154678',
+                            700: '#10365c',
+                            800: '#0d2b4a',
+                            900: '#091e33',
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+    <!-- Lucide Icons -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <!-- Chart.js -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        .bubble-opt.active {
+            background-color: #154678;
+            color: #ffffff;
+            font-weight: bold;
+            border-color: #154678;
+        }
+        .code-filter-btn.active {
+            background-color: #154678;
+            color: #ffffff;
+            box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+        }
+
+        /* Modern Native Dialog Styling */
+        dialog#custom-dialog:modal {
+            overscroll-behavior: contain;
+        }
+        dialog#custom-dialog::backdrop {
+            overflow: hidden;
+            overscroll-behavior: contain;
+            background: rgba(15, 23, 42, 0.45);
+            backdrop-filter: blur(4px);
+            -webkit-backdrop-filter: blur(4px);
+        }
+        dialog#custom-dialog[open] {
+            animation: dialogPop 0.2s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+        }
+        @keyframes dialogPop {
+            from {
+                opacity: 0;
+                transform: scale(0.94) translateY(-10px);
+            }
+            to {
+                opacity: 1;
+                transform: scale(1) translateY(0);
+            }
+        }
+
+        /* Toast Animation */
+        @keyframes toastSlideIn {
+            from {
+                opacity: 0;
+                transform: translateX(110%);
+            }
+            to {
+                opacity: 1;
+                transform: translateX(0);
+            }
+        }
+        @keyframes toastSlideOut {
+            from {
+                opacity: 1;
+                transform: translateX(0);
+            }
+            to {
+                opacity: 0;
+                transform: translateX(110%);
+            }
+        }
+        .toast-enter {
+            animation: toastSlideIn 0.25s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+        }
+        .toast-exit {
+            animation: toastSlideOut 0.2s ease-in forwards;
+        }
+    </style>
+</head>
+<body class="bg-slate-50 text-slate-800 min-h-screen flex flex-col font-sans antialiased">
+
+    <!-- Header & App Bar -->
+    <header class="bg-gradient-to-r from-moet-700 via-moet-600 to-moet-800 text-white shadow-md sticky top-0 z-40">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-3.5 flex flex-wrap items-center justify-between gap-4">
+            <div class="flex items-center space-x-3">
+                <div class="w-10 h-10 rounded-xl bg-white/10 flex items-center justify-center border border-white/20">
+                    <i data-lucide="check-square" class="w-6 h-6 text-amber-300"></i>
+                </div>
+                <div>
+                    <h1 class="text-lg font-black tracking-tight flex items-center gap-2">
+                        CHẤM ĐIỂM TRẮC NGHIỆM
+                    </h1>
+                </div>
+            </div>
+
+            <!-- Quick Action Buttons & Grade Switcher -->
+            <div class="flex items-center space-x-2.5 flex-wrap gap-y-2">
+                <!-- Chọn Khối Thi Toàn Cục -->
+                <div class="flex items-center bg-black/20 p-1 rounded-xl border border-white/15">
+                    <span class="text-xs text-blue-200 font-bold px-1.5 flex items-center gap-1">
+                        <i data-lucide="graduation-cap" class="w-3.5 h-3.5 text-amber-300"></i>
+                    </span>
+                    <button onclick="changeGrade('Khối 10')" id="header-grade-btn-10" class="grade-pill-btn px-2.5 py-1 rounded-lg text-xs font-bold transition bg-amber-400 text-slate-900 shadow">Khối 10</button>
+                    <button onclick="changeGrade('Khối 11')" id="header-grade-btn-11" class="grade-pill-btn px-2.5 py-1 rounded-lg text-xs font-bold transition text-blue-100 hover:text-white hover:bg-white/10">Khối 11</button>
+                    <button onclick="changeGrade('Khối 12')" id="header-grade-btn-12" class="grade-pill-btn px-2.5 py-1 rounded-lg text-xs font-bold transition text-blue-100 hover:text-white hover:bg-white/10">Khối 12</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Tab Bar -->
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex space-x-1 border-t border-white/10 pt-1">
+            <button onclick="switchTab('tab-grading')" id="nav-grading" class="nav-tab px-4 py-2.5 text-sm font-medium border-b-2 border-amber-300 text-white flex items-center gap-2">
+                <i data-lucide="scan-line" class="w-4 h-4"></i>
+                Chấm Bài Thi
+                <span id="badge-count" class="bg-white/20 px-1.5 py-0.5 rounded-full text-xs ml-1 font-bold">0</span>
+            </button>
+            <button onclick="switchTab('tab-keys')" id="nav-keys" class="nav-tab px-4 py-2.5 text-sm font-medium border-b-2 border-transparent text-blue-100 hover:text-white flex items-center gap-2">
+                <i data-lucide="key" class="w-4 h-4"></i>
+                Ma Trận Đáp Án
+            </button>
+            <button onclick="switchTab('tab-stats')" id="nav-stats" class="nav-tab px-4 py-2.5 text-sm font-medium border-b-2 border-transparent text-blue-100 hover:text-white flex items-center gap-2">
+                <i data-lucide="bar-chart-3" class="w-4 h-4"></i>
+                Phổ Điểm
+            </button>
+        </div>
+    </header>
+
+    <!-- Main Container -->
+    <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 flex-1 w-full">
+
+        <!-- TAB 1: CHẤM BÀI THI (GRADING HUB) -->
+        <section id="tab-grading" class="tab-content block space-y-6">
+            <!-- Upload Area -->
+            <div class="bg-white rounded-2xl shadow-sm border border-slate-200 p-6 space-y-4">
+                <div id="drop-zone" class="border-2 border-dashed border-slate-300 hover:border-moet-600 rounded-xl p-8 text-center cursor-pointer transition bg-slate-50/50 hover:bg-blue-50/30">
+                    <input type="file" id="file-input" multiple accept="image/*" class="hidden">
+                    <div class="flex flex-col items-center justify-center space-y-3">
+                        <div class="w-14 h-14 bg-blue-100 text-moet-600 rounded-full flex items-center justify-center">
+                            <i data-lucide="camera" class="w-7 h-7"></i>
+                        </div>
+                        <div>
+                            <p class="text-base font-semibold text-slate-800">Kéo thả ảnh bài thi vào đây hoặc <span class="text-moet-600 underline">bấm để chọn ảnh</span></p>
+                            <p class="text-xs text-slate-500 mt-1">Hỗ trợ ảnh chụp điện thoại (JPG, PNG). Tự động nắn góc phối cảnh theo 4 ô marker và khử bóng mờ.</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Toolbar: Chế độ chọn Mã Đề khi Upload (Tự động hoặc chỉ định) -->
+                <div class="flex items-center gap-3 text-xs bg-slate-50 p-3 rounded-xl border border-slate-200">
+                    <div class="flex items-center gap-2 flex-1">
+                        <i data-lucide="layers" class="w-4 h-4 text-moet-600 flex-shrink-0"></i>
+                        <span class="font-bold text-slate-700 whitespace-nowrap">Chế độ chấm bài:</span>
+                        <select id="upload-force-code" class="w-full sm:max-w-md px-3 py-1.5 bg-white border border-slate-300 rounded-lg font-semibold text-slate-700 outline-none focus:ring-2 focus:ring-moet-600 truncate">
+                            <option value="">🎯 Tự động nhận diện theo Mã đề học sinh tô trên bài</option>
+                            <!-- Dynamically populated with codes: 201, 202, 203, 204 -->
+                        </select>
+                    </div>
+                </div>
+
+                <!-- Progress Bar -->
+                <div id="progress-container" class="hidden mt-4 space-y-2">
+                    <div class="flex justify-between text-xs font-semibold text-slate-600">
+                        <span id="progress-text">Đang nhận diện và chấm bài...</span>
+                        <span id="progress-percent">0%</span>
+                    </div>
+                    <div class="w-full bg-slate-200 rounded-full h-2 overflow-hidden">
+                        <div id="progress-bar" class="bg-moet-600 h-2 rounded-full transition-all duration-300" style="width: 0%"></div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Graded Results Table -->
+            <div class="bg-white rounded-2xl shadow-sm border border-slate-200 overflow-hidden space-y-4 p-6">
+                <!-- Top Toolbar: Header & Action Buttons -->
+                <div class="flex flex-wrap items-center justify-between gap-4 pb-4 border-b border-slate-100">
+                    <div>
+                        <h2 class="text-lg font-bold text-slate-800">Danh Sách Bài Thi Đã Chấm</h2>
+                        <p class="text-xs text-slate-500">Bấm vào bất kỳ bài thi nào để xem ảnh đã khoanh vùng và đối soát chi tiết</p>
+                    </div>
+                    <div class="flex items-center space-x-2 flex-wrap gap-y-2">
+                        <!-- Dropdown Xoá Bài Thi: Xóa theo bộ lọc (mã đề, sai mã đề, lớp) hoặc Xóa tất cả -->
+                        <div class="relative inline-block text-left">
+                            <button type="button" onclick="toggleClearDropdown(event)" id="btn-clear-dropdown" class="px-3 py-1.5 text-xs text-red-600 hover:bg-red-50 border border-red-200 rounded-lg transition font-medium flex items-center gap-1.5">
+                                <i data-lucide="trash-2" class="w-3.5 h-3.5"></i>
+                                <span>Xoá Bài Thi ▾</span>
+                            </button>
+                            <div id="clear-dropdown-menu" class="hidden absolute left-0 sm:right-0 sm:left-auto mt-1 w-64 bg-white rounded-xl shadow-lg border border-slate-200 py-1.5 z-30 text-xs">
+                                <button type="button" onclick="clearCurrentFilterResults()" class="w-full text-left px-3 py-2 text-slate-700 hover:bg-amber-50 hover:text-amber-800 font-medium flex items-center gap-2">
+                                    <i data-lucide="filter-x" class="w-3.5 h-3.5 text-amber-600"></i>
+                                    <span id="label-clear-filtered">Xóa các bài đang xem</span>
+                                </button>
+                                <button type="button" onclick="clearGradeResults()" class="w-full text-left px-3 py-2 text-slate-700 hover:bg-red-50 hover:text-red-700 font-medium flex items-center gap-2">
+                                    <i data-lucide="trash" class="w-3.5 h-3.5 text-red-500"></i>
+                                    <span id="label-clear-grade">Xóa toàn bộ bài khối hiện tại</span>
+                                </button>
+                                <div class="border-t border-slate-100 my-1"></div>
+                                <button type="button" onclick="clearAllResults()" class="w-full text-left px-3 py-2 text-red-600 hover:bg-red-50 font-bold flex items-center gap-2">
+                                    <i data-lucide="alert-triangle" class="w-3.5 h-3.5 text-red-600"></i>
+                                    <span>Xóa sạch tất cả kết quả</span>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Exam Code & Class Filter Bar: Lọc theo Mã Đề và Lọc/Sắp xếp theo Lớp (10/1 -> 10/2 -> 10/11) -->
+                <div class="flex items-center justify-between gap-3 flex-wrap bg-slate-50 p-3 rounded-xl border border-slate-200">
+                    <div class="flex items-center gap-3 flex-wrap">
+                        <!-- Lọc Mã đề -->
+                        <div class="flex items-center gap-1.5">
+                            <span class="text-xs font-bold text-slate-600 flex items-center gap-1">
+                                <i data-lucide="filter" class="w-3.5 h-3.5 text-moet-600"></i> Mã đề:
+                            </span>
+                            <div id="code-filter-chips" class="flex items-center gap-1.5 flex-wrap">
+                                <!-- Populated dynamically: [Tất cả] [Mã 201] [Mã 202]... -->
+                            </div>
+                        </div>
+
+                        <!-- Sắp xếp thứ tự hiển thị danh sách bài thi -->
+                        <div class="flex items-center gap-2 pl-3 border-l border-slate-300 flex-wrap">
+                            <span class="text-xs font-bold text-slate-600 flex items-center gap-1">
+                                <i data-lucide="arrow-up-down" class="w-3.5 h-3.5 text-indigo-600"></i> Sắp xếp:
+                            </span>
+                            <select id="sort-order" onchange="onSortOrderChange(this.value)" class="px-2.5 py-1 text-xs bg-white border border-slate-300 rounded-lg font-semibold text-slate-700 outline-none focus:ring-2 focus:ring-moet-600 shadow-sm" title="Thứ tự hiển thị danh sách">
+                                <option value="score_desc">Điểm cao → thấp</option>
+                                <option value="score_asc">Điểm thấp → cao</option>
+                                <option value="sbd_asc">SBD tăng dần</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="text-xs text-slate-500 font-medium">
+                        Đang xem: <span id="current-filter-label" class="font-bold text-moet-600">Tất cả bài thi</span>
+                    </div>
+                </div>
+
+                <!-- Table Container -->
+                <div class="overflow-x-auto rounded-xl border border-slate-200">
+                    <table class="w-full text-left text-sm">
+                        <thead class="bg-slate-50 text-slate-600 uppercase text-xs font-semibold border-b border-slate-200">
+                            <tr>
+                                <th class="px-4 py-3 text-center">STT</th>
+                                <th class="px-4 py-3">Tên File Bài Thi</th>
+                                <th class="px-4 py-3 text-center">Số Báo Danh</th>
+                                <th class="px-4 py-3 text-center">Mã Đề</th>
+                                <th class="px-4 py-3 text-right">P.I (TN)</th>
+                                <th class="px-4 py-3 text-right">P.II (Đ/S)</th>
+                                <th class="px-4 py-3 text-right">P.III (Số)</th>
+                                <th class="px-4 py-3 text-right">TỔNG ĐIỂM</th>
+                                <th class="px-4 py-3 text-center">Trạng Thái</th>
+                                <th class="px-4 py-3 text-center">Thao Tác</th>
+                            </tr>
+                        </thead>
+                        <tbody id="results-tbody" class="divide-y divide-slate-200 bg-white">
+                            <tr>
+                                <td colspan="10" class="px-6 py-12 text-center text-slate-400">
+                                    <i data-lucide="inbox" class="w-10 h-10 mx-auto mb-2 text-slate-300"></i>
+                                    Chưa có bài thi nào được chấm. Hãy kéo thả hoặc chọn ảnh bài thi để bắt đầu chấm điểm!
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </section>
+
+        <!-- TAB 2: MA TRẬN ĐÁP ÁN (ANSWER KEYS) -->
+        <section id="tab-keys" class="tab-content hidden space-y-6">
+            <!-- Grade Switcher for Keys Matrix -->
+            <div class="flex items-center justify-between bg-white rounded-2xl shadow-sm border border-slate-200 p-4 flex-wrap gap-3">
+                <div class="flex items-center gap-2">
+                    <i data-lucide="layers" class="w-5 h-5 text-moet-600"></i>
+                    <span class="font-bold text-slate-800 text-sm">Cấu hình Đáp án & Thông tin cho:</span>
+                    <span id="keys-current-grade-badge" class="px-2.5 py-0.5 rounded-lg bg-blue-100 text-moet-700 font-extrabold text-xs">Khối 10</span>
+                </div>
+                <div class="flex items-center gap-2">
+                    <button type="button" onclick="changeGrade('Khối 10')" id="keys-grade-btn-10" class="grade-tab-btn px-3.5 py-1.5 rounded-lg text-xs font-bold transition bg-moet-600 text-white shadow-sm">Khối 10</button>
+                    <button type="button" onclick="changeGrade('Khối 11')" id="keys-grade-btn-11" class="grade-tab-btn px-3.5 py-1.5 rounded-lg text-xs font-bold transition bg-slate-100 text-slate-700 hover:bg-slate-200">Khối 11</button>
+                    <button type="button" onclick="changeGrade('Khối 12')" id="keys-grade-btn-12" class="grade-tab-btn px-3.5 py-1.5 rounded-lg text-xs font-bold transition bg-slate-100 text-slate-700 hover:bg-slate-200">Khối 12</button>
+                </div>
+            </div>
+
+            <!-- Exam Info Header -->
+            <div class="bg-white rounded-2xl shadow-sm border border-slate-200 p-6">
+                <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
+                    <div>
+                        <label class="block text-xs font-semibold text-slate-600 mb-1">Môn Học</label>
+                        <input type="text" id="cfg-subject" class="w-full text-sm px-3 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-moet-600 outline-none">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-semibold text-slate-600 mb-1">Tên Kỳ Thi</label>
+                        <input type="text" id="cfg-exam" class="w-full text-sm px-3 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-moet-600 outline-none">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-semibold text-slate-600 mb-1">Năm Học</label>
+                        <input type="text" id="cfg-year" class="w-full text-sm px-3 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-moet-600 outline-none">
+                    </div>
+                    <div class="flex items-end">
+                        <button onclick="saveExamConfig()" class="w-full px-4 py-2 bg-moet-600 hover:bg-moet-700 text-white font-semibold text-sm rounded-lg shadow-sm transition flex items-center justify-center gap-1.5">
+                            <i data-lucide="save" class="w-4 h-4"></i>
+                            Lưu Đáp Án
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Exam Codes Selector -->
+            <div class="flex items-center space-x-2 flex-wrap gap-y-2">
+                <span class="text-sm font-bold text-slate-700">Mã đề đang chọn:</span>
+                <div id="exam-code-chips" class="flex items-center space-x-2">
+                    <!-- Populated dynamically: 201, 202... -->
+                </div>
+                <button onclick="addNewExamCode()" class="text-xs px-2.5 py-1.5 rounded-lg border border-slate-300 hover:border-moet-600 text-slate-600 hover:text-moet-600 font-medium transition flex items-center gap-1">
+                    <i data-lucide="plus" class="w-3.5 h-3.5"></i>
+                    Thêm Mã Đề
+                </button>
+                <button onclick="renameCurrentExamCode()" class="text-xs px-2.5 py-1.5 rounded-lg border border-amber-300 hover:border-amber-500 bg-amber-50/70 text-amber-800 hover:bg-amber-100 font-medium transition flex items-center gap-1" title="Đổi tên mã đề đang chọn">
+                    <i data-lucide="edit-3" class="w-3.5 h-3.5 text-amber-600"></i>
+                    Đổi Tên Mã Đề
+                </button>
+                <button onclick="deleteCurrentExamCode()" class="text-xs px-2.5 py-1.5 rounded-lg border border-red-200 hover:border-red-400 bg-red-50 text-red-600 hover:bg-red-100 font-medium transition flex items-center gap-1" title="Xóa mã đề đang chọn">
+                    <i data-lucide="trash-2" class="w-3.5 h-3.5 text-red-600"></i>
+                    Xóa Mã Đề
+                </button>
+            </div>
+
+            <!-- Keys Matrix -->
+            <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                <!-- Part 1 Matrix -->
+                <div class="bg-white rounded-2xl shadow-sm border border-slate-200 p-5">
+                    <div class="flex items-center justify-between pb-3 border-b border-slate-200 mb-4">
+                        <h3 id="p1-header-title" class="font-bold text-sm text-moet-600 flex items-center gap-1.5">
+                            <i data-lucide="list-checks" class="w-4 h-4"></i>
+                            Phần I: Trắc Nghiệm (12 câu - 3.0đ)
+                        </h3>
+                    </div>
+                    <div id="part1-matrix" class="space-y-2 max-h-[500px] overflow-y-auto pr-2">
+                        <!-- Populated by JS -->
+                    </div>
+                </div>
+
+                <!-- Part 2 Matrix -->
+                <div class="bg-white rounded-2xl shadow-sm border border-slate-200 p-5">
+                    <div class="flex items-center justify-between pb-3 border-b border-slate-200 mb-4">
+                        <h3 id="p2-header-title" class="font-bold text-sm text-amber-700 flex items-center gap-1.5">
+                            <i data-lucide="help-circle" class="w-4 h-4"></i>
+                            Phần II: Đúng / Sai (2 câu - 2.0đ)
+                        </h3>
+                    </div>
+                    <div id="part2-matrix" class="space-y-3 max-h-[500px] overflow-y-auto pr-2">
+                        <!-- Populated by JS -->
+                    </div>
+                </div>
+
+                <!-- Part 3 Matrix -->
+                <div class="bg-white rounded-2xl shadow-sm border border-slate-200 p-5">
+                    <div class="flex items-center justify-between pb-3 border-b border-slate-200 mb-4">
+                        <h3 id="p3-header-title" class="font-bold text-sm text-emerald-700 flex items-center gap-1.5">
+                            <i data-lucide="hash" class="w-4 h-4"></i>
+                            Phần III: Trả Lời Ngắn (4 câu - 2.0đ)
+                        </h3>
+                    </div>
+                    <div id="part3-matrix" class="space-y-3 max-h-[500px] overflow-y-auto pr-2">
+                        <!-- Populated by JS -->
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- TAB 3: PHỔ ĐIỂM (STATISTICS THEO MẪU BỘ GD&ĐT) -->
+        <section id="tab-stats" class="tab-content hidden space-y-6">
+            <!-- Header Tiêu Đề Phổ Điểm Chuẩn Như Ảnh Mẫu -->
+            <div class="bg-white rounded-2xl shadow-sm border border-slate-200 p-6">
+                <div class="flex flex-wrap items-center justify-between gap-4 pb-4 border-b border-slate-100">
+                    <div>
+                        <h2 id="stats-main-header-title" class="text-xl sm:text-2xl font-black text-slate-800 tracking-wide uppercase">
+                            PHỔ ĐIỂM MÔN VẬT LÍ 10 NĂM 2026 - 2027
+                        </h2>
+                        <p id="stats-main-subtitle" class="text-xs text-slate-500 mt-1 font-medium">
+                            Biểu đồ phổ điểm thi THPT môn Vật lí 10 - năm 2026 - 2027 • Chuẩn định dạng Bộ GD&ĐT
+                        </p>
+                    </div>
+
+                    <!-- Nút Tải Ảnh Phổ Điểm -->
+                    <div class="flex items-center gap-2 flex-wrap">
+                        <button type="button" onclick="exportStatsChartImage()" class="inline-flex items-center gap-1.5 px-3.5 py-2 text-xs font-semibold rounded-lg bg-indigo-600 hover:bg-indigo-700 text-white shadow-sm transition">
+                            <i data-lucide="image" class="w-4 h-4"></i>
+                            Tải Ảnh Phổ Điểm (.png)
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Thanh Bộ Lọc Thống Kê (Lọc theo Mã đề, Lớp, Bước nhảy điểm) -->
+                <div class="flex items-center justify-between gap-3 flex-wrap mt-4 pt-1">
+                    <div class="flex items-center gap-3 flex-wrap">
+                        <!-- Lọc Mã đề -->
+                        <div class="flex items-center gap-1.5">
+                            <span class="text-xs font-bold text-slate-600 flex items-center gap-1">
+                                <i data-lucide="filter" class="w-3.5 h-3.5 text-moet-600"></i> Mã đề:
+                            </span>
+                            <select id="stats-code-filter" onchange="onStatsFilterChange()" class="px-2.5 py-1.5 text-xs bg-slate-50 border border-slate-300 rounded-lg font-bold text-slate-700 outline-none focus:ring-2 focus:ring-moet-600">
+                                <option value="ALL">Tất cả mã đề</option>
+                            </select>
+                        </div>
+
+                        <!-- Tùy chọn Bước nhảy điểm (0.25đ chuẩn như ảnh) -->
+                        <div class="flex items-center gap-1.5 pl-3 border-l border-slate-200">
+                            <span class="text-xs font-bold text-slate-600 flex items-center gap-1">
+                                <i data-lucide="sliders" class="w-3.5 h-3.5 text-amber-600"></i> Bước nhảy điểm:
+                            </span>
+                            <select id="stats-step-filter" onchange="onStatsFilterChange()" class="px-2.5 py-1.5 text-xs bg-slate-50 border border-slate-300 rounded-lg font-bold text-slate-700 outline-none focus:ring-2 focus:ring-moet-600">
+                                <option value="0.25">0.25 điểm (Chuẩn mẫu Bộ GD&ĐT)</option>
+                                <option value="0.50">0.50 điểm</option>
+                                <option value="1.00">1.00 điểm</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="text-xs text-slate-500 font-medium">
+                        Đang phân tích: <span id="stats-filter-summary-label" class="font-bold text-moet-600">Tất cả bài thi</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Khung Trình Bày Chính: Biểu Đồ Bên Trái & Bảng Chỉ Số Bên Phải (Theo Đúng Ảnh Mẫu) -->
+            <div id="stats-report-capture-area" class="grid grid-cols-1 lg:grid-cols-12 gap-6 bg-white p-6 rounded-2xl shadow-sm border border-slate-200">
+                <!-- Cột Trái: Biểu Đồ Phổ Điểm (Chiếm 8-9 cột) -->
+                <div class="lg:col-span-8 xl:col-span-9 flex flex-col justify-between">
+                    <div>
+                        <h3 id="chart-grades-title" class="text-sm sm:text-base font-bold text-slate-800 text-center mb-3">
+                            Biểu đồ phổ điểm thi THPT môn Vật lí 10 - năm 2026 - 2027
+                        </h3>
+                    </div>
+
+                    <div class="relative w-full h-[460px]">
+                        <canvas id="chart-grades"></canvas>
+                    </div>
+
+                    <div class="flex justify-between items-center text-[11px] text-slate-400 mt-2 px-2">
+                        <span>Trục tung: Số lượng thí sinh</span>
+                        <span id="chart-x-axis-note">Trục hoành: Khoảng điểm (bước nhảy 0.25đ)</span>
+                    </div>
+                </div>
+
+                <!-- Cột Phải: Bảng Chỉ Số Thống Kê (Chiếm 3-4 cột - Chuẩn Thiết Kế Bảng Xanh Dương Như Ảnh) -->
+                <div class="lg:col-span-4 xl:col-span-3 flex flex-col justify-start">
+                    <div class="rounded-xl overflow-hidden border border-blue-900 shadow-md">
+                        <!-- Table Header màu xanh đậm chuẩn ảnh -->
+                        <div class="bg-[#295597] text-white px-4 py-3 flex items-center justify-between font-bold text-xs tracking-wider uppercase">
+                            <span>Chỉ Số Thống Kê</span>
+                            <span class="text-blue-200 text-[10px] font-normal">Giá trị</span>
+                        </div>
+
+                        <!-- Table Content với các dòng chỉ số chuẩn ảnh -->
+                        <table class="w-full text-xs">
+                            <tbody class="divide-y divide-slate-200 bg-white">
+                                <tr class="hover:bg-blue-50/50 transition">
+                                    <td class="px-3.5 py-2.5 font-bold text-slate-700 bg-blue-50/40 w-1/2">Số thí sinh</td>
+                                    <td id="tbl-stat-total" class="px-3.5 py-2.5 text-right font-black text-slate-900 text-sm">0</td>
+                                </tr>
+                                <tr class="hover:bg-blue-50/50 transition">
+                                    <td class="px-3.5 py-2.5 font-bold text-slate-700 bg-blue-50/40">ĐTB (Trung bình)</td>
+                                    <td id="tbl-stat-avg" class="px-3.5 py-2.5 text-right font-black text-red-600 text-base">0.00</td>
+                                </tr>
+                                <tr class="hover:bg-blue-50/50 transition">
+                                    <td class="px-3.5 py-2.5 font-bold text-slate-700 bg-blue-50/40">Trung vị (Median)</td>
+                                    <td id="tbl-stat-median" class="px-3.5 py-2.5 text-right font-black text-slate-900 text-sm">0.00</td>
+                                </tr>
+                                <tr class="hover:bg-blue-50/50 transition">
+                                    <td class="px-3.5 py-2.5 font-bold text-slate-700 bg-blue-50/40">Độ lệch chuẩn</td>
+                                    <td id="tbl-stat-std" class="px-3.5 py-2.5 text-right font-black text-red-600 text-sm">0.00</td>
+                                </tr>
+                                <tr class="hover:bg-blue-50/50 transition">
+                                    <td id="tbl-stat-maxscore-label" class="px-3.5 py-2.5 font-bold text-slate-700 bg-blue-50/40">Số điểm 7.0</td>
+                                    <td id="tbl-stat-maxscore-count" class="px-3.5 py-2.5 text-right font-black text-red-600 text-sm">0</td>
+                                </tr>
+                                <tr class="hover:bg-blue-50/50 transition">
+                                    <td class="px-3.5 py-2.5 font-bold text-slate-700 bg-blue-50/40">Số điểm 0</td>
+                                    <td id="tbl-stat-zero" class="px-3.5 py-2.5 text-right font-black text-slate-900 text-sm">0</td>
+                                </tr>
+                                <tr class="hover:bg-blue-50/50 transition">
+                                    <td class="px-3.5 py-2.5 font-bold text-slate-700 bg-blue-50/40">Mốt (Điểm phổ biến)</td>
+                                    <td id="tbl-stat-mode" class="px-3.5 py-2.5 text-right font-bold text-moet-700 text-xs">---</td>
+                                </tr>
+                                <tr class="hover:bg-blue-50/50 transition">
+                                    <td class="px-3.5 py-2.5 font-bold text-slate-700 bg-blue-50/40">Điểm cao nhất</td>
+                                    <td id="tbl-stat-max" class="px-3.5 py-2.5 text-right font-bold text-emerald-700 text-xs">0.00</td>
+                                </tr>
+                                <tr class="hover:bg-blue-50/50 transition">
+                                    <td class="px-3.5 py-2.5 font-bold text-slate-700 bg-blue-50/40">Điểm thấp nhất</td>
+                                    <td id="tbl-stat-min" class="px-3.5 py-2.5 text-right font-bold text-slate-700 text-xs">0.00</td>
+                                </tr>
+                                <tr class="hover:bg-blue-50/50 transition">
+                                    <td id="tbl-stat-pass-label" class="px-3.5 py-2.5 font-bold text-slate-700 bg-blue-50/40">Tỉ lệ đạt (&ge; 3.5đ)</td>
+                                    <td id="tbl-stat-pass" class="px-3.5 py-2.5 text-right font-bold text-emerald-600 text-xs">0%</td>
+                                </tr>
+                                <tr class="hover:bg-blue-50/50 transition">
+                                    <td class="px-3.5 py-2.5 font-bold text-slate-700 bg-blue-50/40">Điểm liệt (&le; 1.0đ)</td>
+                                    <td id="tbl-stat-paralysis" class="px-3.5 py-2.5 text-right font-bold text-slate-500 text-xs">0 em</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+
+                    <div class="mt-3.5 p-3.5 bg-slate-50 rounded-xl border border-slate-200 text-[11px] text-slate-500 space-y-1">
+                        <p class="font-bold text-slate-700 flex items-center gap-1">
+                            <i data-lucide="info" class="w-3.5 h-3.5 text-moet-600"></i> Ghi chú chỉ số phổ điểm:
+                        </p>
+                        <p>• <b>ĐTB:</b> Điểm bình quân toàn bộ thí sinh trong kỳ thi.</p>
+                        <p>• <b>Trung vị:</b> Mốc điểm chia đôi số lượng thí sinh (50% trên, 50% dưới).</p>
+                        <p>• <b>Độ lệch chuẩn:</b> Độ phân tán/chênh lệch điểm số của học sinh.</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+    </main>
+
+    <!-- Modal Xem Chi Tiết & Chỉnh Sửa Thông Tin Thí Sinh (Inspector Modal) -->
+    <div id="inspector-modal" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4">
+        <div class="bg-white w-full max-w-5xl rounded-2xl shadow-2xl overflow-hidden flex flex-col max-h-[92vh]">
+            <!-- Modal Header -->
+            <div class="px-6 py-4 bg-moet-600 text-white flex items-center justify-between">
+                <div class="flex items-center space-x-3">
+                    <i data-lucide="check-circle-2" class="w-6 h-6 text-emerald-400"></i>
+                    <div>
+                        <h3 id="modal-student-header" class="text-base font-bold">Đối Soát Chi Tiết Bài Thi</h3>
+                        <p id="modal-student-sub" class="text-xs text-blue-100">SBD: --- | Mã đề: ---</p>
+                    </div>
+                </div>
+                <button onclick="closeModal()" class="text-white/80 hover:text-white p-1 rounded-lg hover:bg-white/10 transition">
+                    <i data-lucide="x" class="w-6 h-6"></i>
+                </button>
+            </div>
+
+            <!-- Modal Body (Side-by-side) -->
+            <div class="p-6 overflow-y-auto flex-1 grid grid-cols-1 md:grid-cols-2 gap-6">
+                <!-- Left: Visual Sheet with Annotations -->
+                <div class="space-y-2">
+                    <div class="flex items-center justify-between text-xs font-semibold text-slate-600">
+                        <span>Ảnh Bài Thi Đã Khoanh Vùng:</span>
+                        <div class="flex items-center gap-2">
+                            <span class="flex items-center gap-1 text-emerald-600"><span class="w-2 h-2 rounded-full bg-emerald-500"></span> Đúng</span>
+                            <span class="flex items-center gap-1 text-red-600"><span class="w-2 h-2 rounded-full bg-red-500"></span> Sai</span>
+                            <span class="flex items-center gap-1 text-amber-600"><span class="w-2 h-2 rounded-full bg-amber-500"></span> Đ.Á chuẩn</span>
+                        </div>
+                    </div>
+                    <div class="border border-slate-200 rounded-xl overflow-hidden bg-slate-100 flex items-center justify-center max-h-[580px]">
+                        <img id="modal-img" src="" alt="Ảnh bài thi" class="w-full h-auto object-contain">
+                    </div>
+                </div>
+
+                <!-- Right: Detailed Question Breakdown & Edit Info -->
+                <div class="space-y-4">
+                    <!-- Score KPI Card -->
+                    <div class="p-4 bg-blue-50/60 rounded-xl border border-blue-100 flex items-center justify-between">
+                        <div>
+                            <p class="text-xs text-slate-500 font-medium">Tổng Điểm Bài Thi</p>
+                            <p id="modal-score" class="text-3xl font-black text-moet-600">0.00</p>
+                        </div>
+                        <div class="text-right text-xs space-y-0.5 text-slate-600">
+                            <p id="modal-p1-score">Phần I: 0.00đ</p>
+                            <p id="modal-p2-score">Phần II: 0.00đ</p>
+                            <p id="modal-p3-score">Phần III: 0.00đ</p>
+                        </div>
+                    </div>
+
+                    <!-- Editable Student SBD Form -->
+                    <div class="p-3.5 bg-slate-50 rounded-xl border border-slate-200 space-y-2 text-xs">
+                        <div class="font-bold text-slate-700 flex items-center justify-between">
+                            <span class="flex items-center gap-1.5">
+                                <i data-lucide="hash" class="w-4 h-4 text-moet-600"></i>
+                                Số Báo Danh (SBD):
+                            </span>
+                            <span class="text-slate-400 font-normal text-[11px]">* Đối chiếu với số báo danh tô trên phiếu thi</span>
+                        </div>
+                        <div class="flex items-center gap-2">
+                            <div class="flex-1">
+                                <input type="text" id="modal-edit-sbd" placeholder="vd: 100424..." class="w-full px-3 py-1.5 bg-white border border-slate-300 rounded-lg font-mono font-bold text-slate-800 outline-none focus:ring-1 focus:ring-moet-600">
+                            </div>
+                            <button onclick="saveStudentInfoFromModal()" class="px-4 py-1.5 bg-moet-600 hover:bg-moet-700 text-white font-semibold rounded-lg shadow-sm transition flex items-center justify-center gap-1 flex-shrink-0">
+                                <i data-lucide="save" class="w-3.5 h-3.5"></i> Cập Nhật SBD
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Issues list -->
+                    <div id="modal-issues" class="space-y-1">
+                        <!-- Populated by JS -->
+                    </div>
+
+                    <!-- Question list -->
+                    <div class="border border-slate-200 rounded-xl p-3 max-h-[300px] overflow-y-auto space-y-2">
+                        <h4 class="text-xs font-bold text-slate-700 uppercase tracking-wider mb-2">Chi Tiết Từng Câu Hỏi:</h4>
+                        <div id="modal-questions-list" class="space-y-1.5 text-xs">
+                            <!-- Populated by JS -->
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Modal Footer -->
+            <div class="px-6 py-3 bg-slate-50 border-t border-slate-200 flex justify-between items-center">
+                <button type="button" onclick="deleteCurrentResultFromModal()" class="px-3.5 py-1.5 bg-red-50 hover:bg-red-100 text-red-600 border border-red-200 text-xs font-semibold rounded-lg transition flex items-center gap-1.5 shadow-sm">
+                    <i data-lucide="trash-2" class="w-3.5 h-3.5 text-red-600"></i>
+                    Xóa Bài Thi Này
+                </button>
+                <button onclick="closeModal()" class="px-4 py-2 bg-slate-200 hover:bg-slate-300 text-slate-800 text-xs font-semibold rounded-lg transition">
+                    Đóng
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Toast Notification Container -->
+    <div id="toast-container" class="fixed top-5 right-5 z-[100] flex flex-col gap-2.5 pointer-events-none max-w-sm w-full" aria-live="polite"></div>
+
+    <!-- Custom Modern Dialog (Alert / Confirm / Prompt) -->
+    <dialog id="custom-dialog" class="p-0 bg-transparent rounded-2xl shadow-2xl border-0 max-w-md w-full mx-auto my-auto" aria-labelledby="custom-dialog-title">
+        <div class="bg-white rounded-2xl border border-slate-200 shadow-2xl overflow-hidden p-6 text-slate-800 space-y-4">
+            <div class="flex items-start gap-3.5">
+                <div id="custom-dialog-icon-box" class="w-11 h-11 rounded-xl flex items-center justify-center flex-shrink-0 bg-blue-50 text-moet-600 border border-blue-100">
+                    <i id="custom-dialog-icon" data-lucide="info" class="w-5 h-5"></i>
+                </div>
+                <div class="flex-1 space-y-1">
+                    <h3 id="custom-dialog-title" class="text-base font-bold text-slate-900 leading-snug">Thông Báo</h3>
+                    <p id="custom-dialog-message" class="text-xs text-slate-600 leading-relaxed whitespace-pre-line"></p>
+                </div>
+            </div>
+
+            <!-- Optional Input Field for Prompt -->
+            <div id="custom-dialog-input-wrapper" class="hidden space-y-1.5 pt-1">
+                <input type="text" id="custom-dialog-input" class="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-300 rounded-xl text-xs font-semibold text-slate-800 outline-none focus:bg-white focus:border-moet-600 focus:ring-2 focus:ring-moet-600/20 transition">
+                <p id="custom-dialog-error" class="text-[11px] text-red-600 font-medium hidden flex items-center gap-1">
+                    <i data-lucide="alert-circle" class="w-3.5 h-3.5"></i>
+                    <span id="custom-dialog-error-text"></span>
+                </p>
+            </div>
+
+            <!-- Action Buttons -->
+            <div class="flex items-center justify-end gap-2.5 pt-2 border-t border-slate-100">
+                <button type="button" id="custom-dialog-btn-cancel" class="px-4 py-2 bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-semibold rounded-xl transition flex items-center gap-1.5">
+                    Hủy
+                </button>
+                <button type="button" id="custom-dialog-btn-confirm" class="px-5 py-2 bg-moet-600 hover:bg-moet-700 text-white text-xs font-semibold rounded-xl shadow-sm transition flex items-center gap-1.5">
+                    Xác Nhận
+                </button>
+            </div>
+        </div>
+    </dialog>
+
+    <!-- App JS (kèm query param chống cache trình duyệt) -->
+    <script src="/app.js?v=20261126_1350"></script>
+    <script>
+        lucide.createIcons();
+    </script>
+</body>
+</html>
