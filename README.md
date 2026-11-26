@@ -79,8 +79,8 @@ GradingWeb/
 
 ### 1. Yêu cầu hệ thống
 - Hệ điều hành: Windows, macOS hoặc Linux.
-- Python: Phiên bản **3.10** trở lên.
-- Đã cài đặt **Git**.
+- Python: Phiên bản **3.10** đến **3.12** (khuyến nghị).
+- ⚠️ **Lưu ý quan trọng khi cài đặt Python trên Windows:** Nhớ tích chọn **"Add python.exe to PATH"** ở bước cài đặt đầu tiên.
 
 ### 2. Tải mã nguồn về máy
 ```bash
@@ -88,29 +88,55 @@ git clone https://github.com/nhattan0114/GradingWeb.git
 cd GradingWeb
 ```
 
-### 3. Tạo môi trường ảo & cài đặt thư viện
+---
+
+### 🌟 Cách 1: Khởi chạy 1-Click tự động hoàn toàn (Khuyên dùng cho Windows)
+
+> **Không cần cài đặt thủ công, không cần gõ lệnh dòng lệnh phức tạp!**
+
+1. Nhấp đúp chuột vào file **`run_web.bat`** trong thư mục dự án.
+2. File script thông minh sẽ tự động:
+   - ✅ Kiểm tra cài đặt Python trên máy.
+   - ✅ Tự động khởi tạo môi trường ảo (`venv`) chuẩn hoá.
+   - ✅ Tự động kiểm tra và tải/cài đặt đầy đủ các thư viện phụ thuộc từ `requirements.txt` nếu máy chưa có.
+   - ✅ Tự động dọn dẹp giải phóng cổng `8000` (nếu đang bị tiến trình khác chiếm dụng).
+   - ✅ Tự động mở trình duyệt tới `http://localhost:8000` và khởi chạy máy chủ.
+
+*(Nếu bạn chỉ muốn thiết lập sẵn môi trường và thư viện trước mà chưa muốn chạy server ngay, bạn có thể nhấp đúp vào **`setup_env.bat`**).*
+
+---
+
+### 💻 Cách 2: Cài đặt và khởi chạy thủ công (Dành cho macOS / Linux hoặc Lập trình viên)
+
+#### Bước 1: Khởi tạo và kích hoạt môi trường ảo
 ```bash
-# Khởi tạo môi trường ảo (tuỳ chọn nhưng khuyến nghị)
+# Tạo môi trường ảo venv
 python -m venv venv
 
 # Kích hoạt môi trường ảo:
-# Trên Windows:
-venv\Scripts\activate
-# Trên Linux/macOS:
+# Trên Windows (Command Prompt):
+venv\Scripts\activate.bat
+# Trên Windows (PowerShell):
+venv\Scripts\Activate.ps1
+# Trên macOS / Linux:
 source venv/bin/activate
+```
 
-# Cài đặt các thư viện cần thiết
+#### Bước 2: Cài đặt các thư viện cần thiết
+```bash
 pip install -r requirements.txt
 ```
 
-### 4. Khởi chạy ứng dụng
-Chạy trực tiếp bằng lệnh Python:
+#### Bước 3: Khởi chạy máy chủ
 ```bash
 python run_server.py
 ```
-*Hoặc trên Windows, bạn có thể click đúp chuột vào file `run_web.bat`.*
 
-### 5. Truy cập ứng dụng
+> 💡 **Giải thích nguyên nhân lỗi trước đây:** Khi cài đặt vào môi trường ảo `venv`, các thư viện được lưu trữ riêng trong `venv`. Nếu mở terminal mới hoặc dùng file `.bat` cũ (vốn gọi `python` toàn cục), hệ thống sẽ không tìm thấy các thư viện và báo lỗi thiếu module. Phiên bản `run_web.bat` mới đã được nâng cấp tự động trỏ chính xác vào `venv\Scripts\python.exe` nên hoàn toàn khắc phục được vấn đề này.
+
+---
+
+### 🌐 Truy cập ứng dụng
 - **Trên máy tính:** Mở trình duyệt và truy cập: [http://localhost:8000](http://localhost:8000)
 - **Trên điện thoại:** Kết nối điện thoại cùng mạng WiFi với máy tính và truy cập theo địa chỉ IP hiển thị trên màn hình console (ví dụ: `http://192.168.1.x:8000`).
 

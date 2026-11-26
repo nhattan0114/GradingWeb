@@ -1,16 +1,19 @@
 import os
+import sys
 import cv2
 import numpy as np
 from typing import Optional, Tuple, Dict
 from pathlib import Path
 
-# Thêm DLL directory cho PyTorch trên Windows nếu cần
-torch_lib = r"C:\Users\LENOVO\AppData\Roaming\Python\Python314\site-packages\torch\lib"
-if os.path.exists(torch_lib):
-    try:
-        os.add_dll_directory(torch_lib)
-    except Exception:
-        pass
+# Tự động nạp thư viện DLL cho PyTorch trên Windows nếu có
+if sys.platform == "win32":
+    for p in sys.path:
+        torch_lib = os.path.join(p, "torch", "lib")
+        if os.path.isdir(torch_lib):
+            try:
+                os.add_dll_directory(torch_lib)
+            except Exception:
+                pass
 
 from ultralytics import YOLO
 
